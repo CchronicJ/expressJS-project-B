@@ -1,0 +1,90 @@
+<!DOCTYPE html><!Distinguishes this as a html document>
+<html lang="en" dir="ltr"><!sets common language to english>
+
+<head><!head of page website>
+  <meta charset="utf-8"><!converts it into machine readable code>
+  <title>websocket</title><!title>
+</head><!end of the head of the page>
+
+<body><!beginnging of the body part of the webpage>
+  <div id="outpoot" style="height: 400px; overflow: scroll;"><!divides the page into a section>
+  </div><!end of tag>
+  <textarea id="inpoot" rows=2 cols=32 autocomplete="off"></textarea><!Sets an area where text will live from now on.>
+  <button id="sendButton" onclick="sendit()">Send</button><!sets a send button that sends you somewhere.>
+  <div id="userBox"><!adds a divided section to the webpage.>
+  </div><!end of divided section>
+</body><!end of the body section of the webpage.>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script><!starts of a script on a webpage that is currently set.>
+<script type="text/javascript">//Distinguishes this script is written in javascript, and no other language.
+
+  const ws = new WebSocket('ws://localhost:8080/');//creates a connection to a server that it will send the information to.
+
+  document.getElementById('inpoot').addEventListener("keyup", function(event) {//adds the previous listed text field.
+
+    if (event.keyCode == 13) {//Start of a if statement setting the parameters for something to take place.
+
+      event.preventDefault();//calls a function
+
+      document.getElementById('sendButton').click();//gets the send button ready for pushing
+    }
+  });
+
+
+  ws.onopen = function() {//starts the beginnig of a dunction
+    console.log('Connected to server!');//logs that you are connected to the server.
+    // What do?
+    let connectMSG = {//start of a variable
+      name: "Crystal Tofu",//variable parameter
+      type: "connect",//variable parameter
+      date: new Date()//variable parameter
+    }
+
+    ws.send(JSON.stringify(connectMSG));//turns the variable into a string
+  }
+
+  ws.onmessage = function(message) {//calls a function with a parameter attached to it.
+
+    let data = JSON.parse(message.data);//A variable that reads message.data in JSON.
+
+    if (data.type == "message") {//beginnig of an if statement that has parameters that are comparing themselves to each other.
+
+      document.getElementById('outpoot').innerHTML +=//calls back a div section that is adding all the contents forwar onto it, and producing a answer
+        `<span style="color: ${data.color}" title="${data.date}">` +//adds more to the content of the div, and then adds the next one as well
+        `${data.name}</span>: ${data.message}<br>`;//more content, and the end of the addition process.
+    }
+
+    else if (data.type == "userlist") {//begins a if statement calling parameters that are comparing each other again.
+
+      let userBox = document.getElementById('userBox')//calls a variable that calls a div back into play putting it in the following devided section of the webpage.
+
+      userBox.innerHTML = '';//makes the divided section of the webpage ingrained into the website.
+
+      data.names.forEach(function(name) {//A series of parameters that call a certain ingrained function, that calls a function.
+
+        userBox.innerHTML += name + "<br>";//adds to the userbox the name.
+      });
+    } else if (data.type == "connect") {//Begins a if statement with the parameters comparing one another again.
+
+      document.getElementById('outpoot').innerHTML +=//brings back the div section, and adds the following content to it.
+        `<i>${data.name} has joined the server.</i><br>`
+    }
+  }
+
+
+  function sendit() {//calls function
+
+    let msgObj = {//another variable gets created
+      name: "Crystal Tofu",//variable parameter
+      color: "#3333FF",//variable parameter
+      type: "message",//variable parameter
+      message: document.getElementById('inpoot').value,//sets the following message by calling back things of the past creation
+      date: new Date().toString()//turns the function into a sting
+    };
+
+    ws.send(JSON.stringify(msgObj));//turns the past called variable into a sting
+
+    document.getElementById('inpoot').value = "";//calls the textarea again
+  }
+</script><!end of script>
+
+</html><!end of html document>
